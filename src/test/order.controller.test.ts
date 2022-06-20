@@ -21,7 +21,6 @@ describe('create order', () => {
             cityId: 1
         })
     });
-    
     afterEach(async () => {
         await MasterCity.destroy({where: {masterId: id}})
         await Master.destroy({where: {id}})
