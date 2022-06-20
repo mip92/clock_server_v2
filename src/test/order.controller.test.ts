@@ -25,7 +25,6 @@ describe('create order', () => {
         await MasterCity.destroy({where: {masterId: id}})
         await Master.destroy({where: {id}})
     })
-
     test('create order with valid data', async () => {
         const response = await axios.get(`${process.env.API_URL}/api/masters/getOneMaster/${id}`)
         expect(response.data.cities[0].id).toStrictEqual(1)
