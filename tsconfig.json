@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "outDir": "build", // Types should go into this directory.
+    "declaration": true,
+
+    "typeRoots": [
+      "./typings",
+      "./node_modules/@types/"
+    ],
+
+    "noImplicitAny": false,
+
+    "allowJs": true,
+    "checkJs": false,
+    //"target": "ES2015"
+    "target": "es2020",
+    "lib": [
+      "es6",
+      "dom",
+      "es2017"
+    ],
+    "module": "CommonJS",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true
+  }
+}
+

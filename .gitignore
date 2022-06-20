@@ -1,0 +1,11 @@
+.idea
+/coverage
+/build
+/node_modules
+/src/static
+/.env
+/.env.development
+/.env.production
+
+jestSetup.js
+
