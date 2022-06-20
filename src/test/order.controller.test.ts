@@ -4,8 +4,8 @@ import {dbConfig, Master, MasterBusyDate, MasterCity, Order, ROLE, STATUSES, Use
 describe('create order', () => {
     let id: number
     beforeEach(async () => {
-        await dbConfig.authenticate()
-        await dbConfig.sync()
+        /*await dbConfig.authenticate()
+        await dbConfig.sync()*/
         const master = await Master.create({
             name: 'longName',
             email: "some@valid.email",

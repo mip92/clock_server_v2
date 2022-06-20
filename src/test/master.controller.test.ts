@@ -7,11 +7,11 @@ import authController from "../controller/auth.controller";
 import {NextFunction, response} from "express";
 
 describe('master controller', () => {
-    beforeAll(async () => {
+    /*beforeAll(async () => {
             await dbConfig.authenticate()
             await dbConfig.sync()
         }
-    )
+    )*/
     describe('create master', () => {
 
        /* test('login', () => {
