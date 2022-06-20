@@ -30,6 +30,7 @@ const options = {
     }
 //}
 
+
 export const dbConfig = new Sequelize(options);
 
 export const User = UserFactory(dbConfig);
