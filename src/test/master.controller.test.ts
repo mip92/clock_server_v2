@@ -36,6 +36,7 @@ describe('master controller', () => {
             })
         })*/
 
+
         test('create master with short name', async () => {
             const response = await axios.post(`${process.env.API_URL}/api/auth/login`, {
                 email: process.env.ADMIN_EMAIL,
