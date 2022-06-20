@@ -19,6 +19,7 @@ jobs:
     strategy:
       matrix:
         node-version: [ 16.15.0 ]
+    environment: clock-test-2022
     steps:
       - uses: actions/checkout@v3
       - name: Starting Node.js ${{ matrix.node-version }}
