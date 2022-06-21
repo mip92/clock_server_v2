@@ -22,12 +22,12 @@ const options = {
 }
 
 //if (process.env.NODE_ENV === 'production') {
-    options.dialectOptions = {
+/*    options.dialectOptions = {
         ssl: {
             require: true,
             rejectUnauthorized: false
         }
-    }
+    }*/
 //}
 
 

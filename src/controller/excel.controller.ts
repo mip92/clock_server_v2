@@ -1,4 +1,3 @@
-import ErrnoException = NodeJS.ErrnoException;
 import {OrderModelWithMasterBusyDateAndUsers} from "./order.controller";
 import path from "path";
 import fs from 'fs';
@@ -19,7 +18,7 @@ class ExcelController {
 
     deleteExcel(path: string) {
         try {
-            fs.unlink(path, (err: ErrnoException | null) => {
+            fs.unlink(path, (err: any | null) => {
                 console.log(err)
             });
         } catch (e) {
