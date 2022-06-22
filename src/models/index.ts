@@ -19,7 +19,9 @@ const options = {
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
     dialectOptions: {},
-    TYPEORM_DRIVER_EXTRA: {"ssl":true}
+    extra: {
+        ssl: true,
+    },
 }
 
 /*if (process.env.NODE_ENV === 'production') {
