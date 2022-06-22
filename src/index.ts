@@ -27,11 +27,13 @@ app.use(errorMiddleware)
 app.use(()=>everyFiveMinutes)
 app.use(()=>everyHour)
 
-const start = async () => {
+const start = () => {
     try {
-        await dbConfig.authenticate()
-        await dbConfig.sync()
-        app.listen(PORT, () => console.log("Server started on port: " + PORT))
+        dbConfig.authenticate().then(()=>{
+            dbConfig.sync().then(()=>{
+                app.listen(PORT, () => console.log("Server started on port: " + PORT))
+            })
+        })
     } catch (e) {
         console.log(e)
     }
