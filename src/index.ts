@@ -36,6 +36,7 @@ const start = async () => {
         console.log(e)
     }
 }
-start()
+// @ts-ignore
+await start()
 
 export default app
