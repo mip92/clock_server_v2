@@ -23,17 +23,16 @@ describe('master controller', () => {
 
     describe('create master', () => {
         test('should pass index route to react',  (done) => {
+
             const server = chai.request(app)
             server.post('/api/auth/login/')
                 .send({email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD})
                 .then((res)=> {
                         expect(res.body.token).not.toEqual(null)
+
+                        server.close()
                     done();
-                    process.on('SIGTERM', () => {
-                        server.close(() => {
-                            console.log('Process terminated');
-                        });
-                    });
+
 
 
 
