@@ -28,8 +28,13 @@ describe('master controller', () => {
                 .send({email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD})
                 .then((res)=> {
                         expect(res.body.token).not.toEqual(null)
-                    server.close()
-                        done();
+                    done();
+                    process.on('SIGTERM', () => {
+                        server.close(() => {
+                            console.log('Process terminated');
+                        });
+                    });
+
 
 
                     /*chai.request(app).post('/api/cities/')
