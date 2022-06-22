@@ -23,12 +23,13 @@ describe('master controller', () => {
 
     describe('create master', () => {
         test('should pass index route to react',  () => {
-            return chai.request(app).post('/api/auth/login/')
+            const server = chai.request(app)
+            return server.post('/api/auth/login/')
                 .send({email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD})
                 .then((res)=> {
                     try {
                         expect(res.body.token).not.toEqual(null)
-                        //done()
+                        server.close()
                     } catch (e: any) {
                         //done.fail(e)
                     }
