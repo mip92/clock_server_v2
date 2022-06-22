@@ -22,17 +22,16 @@ describe('master controller', () => {
      )*/
 
     describe('create master', () => {
-        test('should pass index route to react',  () => {
+        test('should pass index route to react',  (done) => {
             const server = chai.request(app)
-            return server.post('/api/auth/login/')
+            server.post('/api/auth/login/')
                 .send({email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD})
                 .then((res)=> {
-                    try {
                         expect(res.body.token).not.toEqual(null)
-                        server.close()
-                    } catch (e: any) {
-                        //done.fail(e)
-                    }
+                    server.close()
+                        done();
+
+
                     /*chai.request(app).post('/api/cities/')
                         .set('Authorization', `Bearer ${res.body.token}`)
                         .send({city: "Dnipro", price: 500})
