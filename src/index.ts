@@ -39,6 +39,6 @@ const start = () => {
     }
 }
 
-start()
+//start()
 
 export default app
