@@ -9,6 +9,7 @@ import {response} from "express";
 import sinon from 'sinon';
 import app from "../index";
 
+
 var chai = require('chai')
 const chaiHttp = require('chai-http');
 
@@ -26,13 +27,12 @@ describe('master controller', () => {
     })*/
 
     describe('create master', () => {
-
         test('should pass index route to react', () => {
-            const requester = chai.request(app).keepOpen()
-            requester.post('/api/auth/login')
+            var requester = chai.request(app).keepOpen()
+            return requester.post('/api/auth/login')
                 .send({email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD}).then((res) => {
-                expect(res.body.token).not.toEqual(null)
-                requester.close()
+                expect(res.body.token).not.toEqual(2)
+                    requester.close()
             })
         })
         /*requester.post('/api/auth/login/')
