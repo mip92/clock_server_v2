@@ -10,7 +10,7 @@
     "action": "tsc",
     "migration:up:all": "cd src && npx sequelize-cli db:migrate",
     "migration:down:one": "cd src && npx sequelize-cli db:migrate:undo",
-    "test": "jest"
+    "test": "jest --detectOpenHandles"
   },
   "author": "",
   "license": "ISC",

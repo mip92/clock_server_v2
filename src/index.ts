@@ -24,8 +24,8 @@ app.use(fileupload())
 app.use('/api', router)
 app.use(express.static(path.join(__dirname, 'static')))
 app.use(errorMiddleware)
-app.use(()=>everyFiveMinutes)
-app.use(()=>everyHour)
+/*app.use(()=>everyFiveMinutes)
+app.use(()=>everyHour)*/
 
 const start = () => {
     try {

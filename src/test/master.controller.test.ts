@@ -15,47 +15,46 @@ const chaiHttp = require('chai-http');
 chai.use(chaiHttp);
 
 describe('master controller', () => {
-    /* beforeAll(async () => {
-             await dbConfig.authenticate()
-             await dbConfig.sync()
+
+    let requester
+     beforeAll(async () => {
+         requester = chai.request(app).keepOpen()
          }
-     )*/
+     )
+    afterAll(()=>{
+        requester.close()
+    })
 
     describe('create master', () => {
-        test('should pass index route to react', (done) => {
-            var requester = chai.request(app).keepOpen()
-            //const server = chai.request(app)
-            Promise.all([
-                requester.post('/api/auth/login/')
-                    .send({email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD}) .then((res) => {
-                    expect(res.body.token).not.toEqual(null)})
-            ]).then(()=> {
-                done();
-                requester.close()
+
+        test('should pass index route to react', () => {
+
+            requester.post('http://localhost:5000/api/auth/login')
+                .send({email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD}).then((res) => {
+                expect(res.body.token).not.toEqual(null)
             })
-            /*requester.post('/api/auth/login/')
-                .send({email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD})*/
-                /*.then((res) => {
-                    expect(res.body.token).not.toEqual(null)*/
-
-                   // requester.close()
-
-
-
-                    /*chai.request(app).post('/api/cities/')
-                        .set('Authorization', `Bearer ${res.body.token}`)
-                        .send({city: "Dnipro", price: 500})
-                        .then(function (res) {
-                            expect(JSON.parse(res.body.message).msg).toEqual('City with this name: Dnipro is not unique')
-                            chai.request(app).get('/api/cities/')
-                                .then(function (res) {
-                                    expect(res.body.rows.find(city => city.cityName === "Dnipro").price).toBe(500)
-                                    done();
-                                });
-                        });*/
-                })
-
         })
+        /*requester.post('/api/auth/login/')
+            .send({email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD})*/
+        /*.then((res) => {
+            expect(res.body.token).not.toEqual(null)*/
+
+        // requester.close()
+
+
+        /*chai.request(app).post('/api/cities/')
+            .set('Authorization', `Bearer ${res.body.token}`)
+            .send({city: "Dnipro", price: 500})
+            .then(function (res) {
+                expect(JSON.parse(res.body.message).msg).toEqual('City with this name: Dnipro is not unique')
+                chai.request(app).get('/api/cities/')
+                    .then(function (res) {
+                        expect(res.body.rows.find(city => city.cityName === "Dnipro").price).toBe(500)
+                        done();
+                    });
+            });*/
+    })
+
 
     /*it('ssss', (done) => {
         chai.request(app)
