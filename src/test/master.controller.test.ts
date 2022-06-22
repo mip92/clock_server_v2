@@ -20,14 +20,18 @@ describe('master controller', () => {
              await dbConfig.sync()
          }
      )*/
+
     describe('create master', () => {
-const server = chai.request(app)
         test('should pass index route to react', (done) => {
             chai.request(app).post('/api/auth/login/')
                 .send({email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD})
                 .then(function (res) {
-                    expect(res.body.token).not.toEqual('admin')
-                    done();
+                    try {
+                        expect(res.body.token).not.toEqual(null)
+                        return done()
+                    } catch (e: any) {
+                        done.fail(e)
+                    }
                     /*chai.request(app).post('/api/cities/')
                         .set('Authorization', `Bearer ${res.body.token}`)
                         .send({city: "Dnipro", price: 500})
