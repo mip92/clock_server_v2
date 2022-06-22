@@ -29,6 +29,6 @@ jobs:
       - name: install
         run: npm install
       - name: tsc
-        run: npm tsc
+        run: npm run tsc
       - name: test
         run: npm test
