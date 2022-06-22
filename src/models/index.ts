@@ -19,8 +19,11 @@ const options = {
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
     dialectOptions: {},
+    ssl: true,
     extra: {
-        ssl: true,
+        ssl: {
+            rejectUnauthorized: false,
+        },
     },
 }
 
