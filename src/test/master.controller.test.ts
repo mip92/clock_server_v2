@@ -25,13 +25,21 @@ describe('master controller', () => {
         test('should pass index route to react', (done) => {
             var requester = chai.request(app).keepOpen()
             //const server = chai.request(app)
-            requester.post('/api/auth/login/')
-                .send({email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD})
-                .then((res) => {
-                    expect(res.body.token).not.toEqual(null)
+            Promise.all([
+                requester.post('/api/auth/login/')
+                    .send({email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD}) .then((res) => {
+                    expect(res.body.token).not.toEqual(null)})
+            ]).then(()=> {
+                done();
+                requester.close()
+            })
+            /*requester.post('/api/auth/login/')
+                .send({email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD})*/
+                /*.then((res) => {
+                    expect(res.body.token).not.toEqual(null)*/
 
-                    requester.close()
-                    done();
+                   // requester.close()
+
 
 
                     /*chai.request(app).post('/api/cities/')
@@ -48,7 +56,7 @@ describe('master controller', () => {
                 })
 
         })
-    });
+
     /*it('ssss', (done) => {
         chai.request(app)
             .post('/api/cities/')
