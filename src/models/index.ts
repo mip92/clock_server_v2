@@ -18,12 +18,11 @@ const options = {
     dialect: 'postgres',
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
-    dialectOptions: {},
-    ssl: true,
-    extra: {
+    dialectOptions: {
         ssl: {
-            rejectUnauthorized: false,
-        },
+            require: true,
+            rejectUnauthorized: false
+        }
     },
 }
 
