@@ -1,5 +1,5 @@
 process.env.SECRET_KEY="4564544dasddsfcdfg746";
-process.env.PORT=5000;
+process.env.PORT=6000;
 
 process.env.DB_NAME5="clock";
 process.env.DB_USER5="postgres";
