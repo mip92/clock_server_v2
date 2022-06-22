@@ -28,7 +28,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: install
         run: npm install
-      - name: start:dev
-        run: npm action
+      - name: tsc
+        run: npm tsc
       - name: test
         run: npm test
