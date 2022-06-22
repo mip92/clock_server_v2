@@ -25,7 +25,6 @@ class ExcelController {
             console.log(e)
         }
     }
-
     getExcel(orders: OrderModelWithMasterBusyDateAndUsers[]) {
         const workSheetColumnNames: string[] = ['id', "date time", "user email", "user name", "city",
             "clock size", "deal price", "total price", "status"]
