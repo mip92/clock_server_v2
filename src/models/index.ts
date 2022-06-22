@@ -21,14 +21,16 @@ const options = {
     dialectOptions: {}
 }
 
-//if (process.env.NODE_ENV === 'production') {
-/*    options.dialectOptions = {
-        ssl: {
-            require: true,
-            rejectUnauthorized: false
-        }
-    }*/
-//}
+if (process.env.NODE_ENV === 'production') {
+    options.dialectOptions = {
+        ssl: true,
+        extra: {
+            ssl: {
+                rejectUnauthorized: false
+            },
+        },
+    }
+}
 
 
 export const dbConfig = new Sequelize(options);
