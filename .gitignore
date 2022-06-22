@@ -7,5 +7,5 @@
 /.env.development
 /.env.production
 
-jestSetup.js
+/jestSetup.js
 
