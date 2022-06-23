@@ -18,30 +18,51 @@ chai.use(chaiHttp);
 describe('master controller', () => {
 
     let requester
-     beforeAll(async () => {
-         requester = chai.request(app).keepOpen()
-         }
-     )
-    afterAll(()=>{
+    beforeAll(async () => {
+            requester = chai.request(app).keepOpen()
+        }
+    )
+    afterAll(() => {
         requester.close()
     })
 
     describe('create master', () => {
-        test('should pass index route to react', () => {
-            //var requester = chai.request(app).keepOpen()
+        test('generate token', () => {
             return requester.post('/api/auth/login')
                 .send({email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD}).then((res) => {
-                expect(res.body.token).not.toEqual(2)
-                    //requester.close()
+                    expect(res.body.token).not.toEqual(null)
+                })
+        })
+
+        test('create master with short name', () => {
+            return new Promise((resolve, reject) => {
+                requester.post(`/api/auth/login`)
+                    .send({email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD}).then((response) => {
+                    expect(response.body.name).toEqual('admin')
+                    expect(response.body.token).not.toBe(null)
+                    resolve(requester.post(`/api/masters`)
+                        .set('Authorization', `Bearer ${response.body.token}`)
+                        .send({name: "Short", email: "simple@valid.email", citiesId: 1}).then((response) => {
+                        expect(response.body.errors[0].msg).toEqual('name must be longer than 6 symbols')
+                    }))
+                })
             })
         })
-        /*requester.post('/api/auth/login/')
-            .send({email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD})*/
-        /*.then((res) => {
-            expect(res.body.token).not.toEqual(null)*/
-
-        // requester.close()
-
+       /* test('create master with not valid email', async () => {
+            const response = await axios.post(`http://localhost:5000/api/auth/login`, {
+                email: process.env.ADMIN_EMAIL,
+                password: process.env.ADMIN_PASSWORD,
+            })
+            expect(response.data.name).toEqual('admin')
+            expect(response.data.token).not.toBe(null);
+            try {
+                const response2 = await axios.post(`http://localhost:5000/api/masters`, {
+                    name: "NormalLongName", email: "not@validemail", citiesId: 1,
+                }, {headers: {Authorization: `Bearer ${response.data.token}`}/!*headers.Authorization = `Bearer ${response.data.token}`*!/})
+            } catch (e: any) {
+                expect(e.response.data.errors[0].msg).toEqual('email must be a valid email format')
+            }
+        })*/
 
         /*chai.request(app).post('/api/cities/')
             .set('Authorization', `Bearer ${res.body.token}`)
@@ -57,46 +78,9 @@ describe('master controller', () => {
     })
 
 
-    /*it('ssss', (done) => {
-        chai.request(app)
-            .post('/api/cities/')
-            .send({city:"dnipro", price:500})
-            .then(function (res) {
-                expect(res).toEqual('admin')
-            });
-    });*/
-
     /*
-            test('create master with short name', async () => {
-                const response = await axios.post(`${process.env.API_URL}/api/auth/login`, {
-                    email: process.env.ADMIN_EMAIL,
-                    password: process.env.ADMIN_PASSWORD,
-                })
-                expect(response.data.name).toEqual('admin')
-                expect(response.data.token).not.toBe(null);
-                try {
-                    await axios.post(`${process.env.API_URL}/api/masters`, {
-                        name: "Short", email: "simple@valid.email", citiesId: 1,
-                    }, {headers: {Authorization: `Bearer ${response.data.token}`}/!*headers.Authorization = `Bearer ${response.data.token}`*!/})
-                } catch (e: any) {
-                    expect(e.response.data.errors[0].msg).toEqual('name must be longer than 6 symbols')
-                }
-            })
-            test('create master with not valid email', async () => {
-                const response = await axios.post(`http://localhost:5000/api/auth/login`, {
-                    email: process.env.ADMIN_EMAIL,
-                    password: process.env.ADMIN_PASSWORD,
-                })
-                expect(response.data.name).toEqual('admin')
-                expect(response.data.token).not.toBe(null);
-                try {
-                    const response2 = await axios.post(`http://localhost:5000/api/masters`, {
-                        name: "NormalLongName", email: "not@validemail", citiesId: 1,
-                    }, {headers: {Authorization: `Bearer ${response.data.token}`}/!*headers.Authorization = `Bearer ${response.data.token}`*!/})
-                } catch (e: any) {
-                    expect(e.response.data.errors[0].msg).toEqual('email must be a valid email format')
-                }
-            })
+
+
             test('create and remove master', async () => {
                 const response = await axios.post(`${process.env.API_URL}/api/auth/login`, {
                     email: process.env.ADMIN_EMAIL,
