@@ -17,22 +17,22 @@ chai.use(chaiHttp);
 
 describe('master controller', () => {
 
-    /*let requester
+    let requester
      beforeAll(async () => {
          requester = chai.request(app).keepOpen()
          }
      )
     afterAll(()=>{
         requester.close()
-    })*/
+    })
 
     describe('create master', () => {
         test('should pass index route to react', () => {
-            var requester = chai.request(app).keepOpen()
+            //var requester = chai.request(app).keepOpen()
             return requester.post('/api/auth/login')
                 .send({email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD}).then((res) => {
                 expect(res.body.token).not.toEqual(2)
-                    requester.close()
+                    //requester.close()
             })
         })
         /*requester.post('/api/auth/login/')
