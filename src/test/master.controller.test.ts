@@ -1,9 +1,8 @@
-import {dbConfig, Master, MasterBusyDate, MasterCity, Order, ROLE} from "../models";
+import {ROLE} from "../models";
 import app from "../index";
 import {response} from "express";
 
-
-var chai = require('chai')
+const chai = require('chai')
 const chaiHttp = require('chai-http');
 
 chai.use(chaiHttp);
@@ -230,6 +229,253 @@ describe('master controller', () => {
             })
         })
     })
+    describe('update one master', () => {
+        let token: string
+        let masterId: string
+        beforeAll(() => {
+            return new Promise((resolve, reject) => {
+                requester.post(`/api/auth/login`)
+                    .send({email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD}).then((response) => {
+                    expect(response.body.name).toEqual('admin')
+                    expect(response.body.token).not.toBe(null)
+                    token = response.body.token
+                    resolve(requester.post(`/api/masters`)
+                        .set('Authorization', `Bearer ${token}`)
+                        .send({
+                            name: "NormalLongName",
+                            email: "example@gmail.com",
+                            citiesId: '[1]'
+                        }).then((response) => {
+                            expect(response.body.email).toBe('example@gmail.com')
+                            masterId = response.body.id
+                        })
+                    )
+                })
+            })
+        })
+        afterAll(() => {
+            return new Promise((resolve, reject) => {
+                resolve(requester.delete(`/api/masters/${masterId}`)
+                    .set('Authorization', `Bearer ${token}`).then((response) => {
+                        expect(response.body.message).toBe(`master with id:${masterId} was deleted`)
+                    })
+                )
+            })
+        })
+        test('update master with not valid dates', () => {
+            return new Promise((resolve, reject) => {
+                resolve(requester.put(`/api/masters/`)
+                    .set('Authorization', `Bearer ${token}`)
+                    .send({id: masterId, name: "newNameAfterUpdate", email: "notValid@email"}).then((response) => {
+                        expect(response.body.errors[0].msg).toStrictEqual("email must be a valid email format")
+                        expect(response.body.errors[1].msg).toStrictEqual("cityId is required")
+                    })
+                )
+            })
+        })
+        test('update master with valid dates', async () => {
+            return new Promise((resolve, reject) => {
+                resolve(requester.put(`/api/masters/`)
+                    .set('Authorization', `Bearer ${token}`)
+                    .send({
+                        id: masterId,
+                        name: "newNameAfterUpdate",
+                        email: "new@validemail.com",
+                        citiesId: '1'
+                    }).then((response) => {
+                        expect(response.body.cities[0].id).toStrictEqual(1)
+                        expect(response.body.name).toStrictEqual("newNameAfterUpdate")
+                        expect(response.body.email).toStrictEqual("new@validemail.com")
+                    })
+                )
+            })
+        })
+        test('update master with random id', async () => {
+            return new Promise((resolve, reject) => {
+                resolve(requester.put(`/api/masters/`)
+                    .set('Authorization', `Bearer ${token}`)
+                    .send({
+                        id: randomInteger(5000000, 7000000),
+                        name: "newNameAfterUpdate",
+                        email: "new@validemail.com",
+                        citiesId: '1'
+                    }).then((response) => {
+                        expect(JSON.parse(response.body.message).msg).toStrictEqual("Master with this id is not found")
+                    })
+                )
+            })
+        })
+    })
+    describe('delete one master', () => {
+        let token: string
+        let masterId: string
+        beforeAll(() => {
+            return new Promise((resolve, reject) => {
+                requester.post(`/api/auth/login`)
+                    .send({email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD}).then((response) => {
+                    expect(response.body.name).toEqual('admin')
+                    expect(response.body.token).not.toBe(null)
+                    token = response.body.token
+                    resolve(requester.post(`/api/masters`)
+                        .set('Authorization', `Bearer ${token}`)
+                        .send({
+                            name: "NormalLongName",
+                            email: "example@gmail.com",
+                            citiesId: '[1]'
+                        }).then((response) => {
+                            expect(response.body.email).toBe('example@gmail.com')
+                            masterId = response.body.id
+                        })
+                    )
+                })
+            })
+        })
+        afterAll(() => {
+            return new Promise((resolve, reject) => {
+                resolve(requester.delete(`/api/masters/${masterId}`)
+                    .set('Authorization', `Bearer ${token}`).then((response) => {
+                        expect(response.body.message).toBe(`master with id:${masterId} was deleted`)
+                    })
+                )
+            })
+        })
+        test('delete master', () => {
+            return new Promise((resolve, reject) => {
+                resolve(requester.delete(`/api/masters/${masterId}`)
+                    .set('Authorization', `Bearer ${token}`).then((response) => {
+                        expect(response.body.message).toStrictEqual(`master with id:${masterId} was deleted`)
+                    })
+                )
+            })
+        })
+        test('delete master with randomId', () => {
+            const randomId = randomInteger(5000000, 7000000)
+            return new Promise((resolve, reject) => {
+                resolve(requester.delete(`/api/masters/${randomId}`)
+                    .set('Authorization', `Bearer ${token}`).then((response) => {
+                        expect(response.body.message).toStrictEqual(`master with id:${randomId} is not defined`)
+                    })
+                )
+            })
+        })
+    })
+    describe('approve Master', () => {
+        let token: string
+        let masterId: string
+        beforeAll(() => {
+            return new Promise((resolve, reject) => {
+                requester.post(`/api/auth/login`)
+                    .send({email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD}).then((response) => {
+                    expect(response.body.name).toEqual('admin')
+                    expect(response.body.token).not.toBe(null)
+                    token = response.body.token
+                    resolve(requester.post(`/api/masters`)
+                        .set('Authorization', `Bearer ${token}`)
+                        .send({
+                            name: "NormalLongName",
+                            email: "example@gmail.com",
+                            citiesId: '[1]'
+                        }).then((response) => {
+                            expect(response.body.email).toBe('example@gmail.com')
+                            masterId = response.body.id
+                        })
+                    )
+                })
+            })
+        })
+        afterAll(() => {
+            return new Promise((resolve, reject) => {
+                resolve(requester.delete(`/api/masters/${masterId}`)
+                    .set('Authorization', `Bearer ${token}`).then((response) => {
+                        expect(response.body.message).toBe(`master with id:${masterId} was deleted`)
+                    })
+                )
+            })
+        })
+        test('Approve master mast be true', () => {
+            return new Promise((resolve, reject) => {
+                resolve(requester.get(`/api/masters/getOneMaster/${masterId}`).then((response) => {
+                        expect(response.body.isApproved).toStrictEqual(true)
+                    })
+                )
+            })
+        })
+        test('Approve master', () => {
+            return new Promise((resolve, reject) => {
+                resolve(requester.get(`/api/masters/approve/${masterId}`)
+                    .set('Authorization', `Bearer ${token}`).then((response) => {
+                        expect(response.body.message).toStrictEqual(`master with id:${masterId} changed status approve`)
+                    })
+                )
+            })
+        })
+        test('Approve master with randomId', () => {
+                const randomId = randomInteger(5000000, 7000000)
+                return new Promise((resolve, reject) => {
+                    resolve(requester.get(`/api/masters/approve/${randomId}`)
+                        .set('Authorization', `Bearer ${token}`).then((response) => {
+                            expect(response.body.message).toStrictEqual(`master with id:${randomId} is not defined`)
+                        })
+                    )
+                })
+            }
+        )
+    })
+    describe('get free masters', () => {
+        let token: string
+        let masterId: string
+        beforeAll(() => {
+            return new Promise((resolve, reject) => {
+                requester.post(`/api/auth/login`)
+                    .send({email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD}).then((response) => {
+                    expect(response.body.name).toEqual('admin')
+                    expect(response.body.token).not.toBe(null)
+                    token = response.body.token
+
+                        requester.post(`/api/masters`)
+                            .set('Authorization', `Bearer ${token}`)
+                            .send({
+                                name: "NormalLongName",
+                                email: "example@gmail.com",
+                                citiesId: '[1]'
+                            }).then((response) => {
+                            expect(response.body.email).toBe('example@gmail.com')
+                            expect(response).toBe('example@gmail.com')
+                            masterId = response.body.id
+
+                            requester.get(`/api/activate/${response.body.link}`)
+                            resolve('1')
+                        })
+
+                })
+            })
+        })
+        afterAll(() => {
+            return new Promise((resolve, reject) => {
+                resolve(requester.delete(`/api/masters/${masterId}`)
+                    .set('Authorization', `Bearer ${token}`).then((response) => {
+                        expect(response.body.message).toBe(`master with id:${masterId} was deleted`)
+                    })
+                )
+            })
+        })
+        test('master is free', async () => {
+            return new Promise((resolve, reject) => {
+                requester.get(`/api/masters/getOneMaster/${masterId}`).then((response) => {
+                    expect(response.body.cities[0].id).toStrictEqual(1)
+                    expect(response.body.email).toStrictEqual("example@gmail.com")
+                    const date = new Date(Date.now())
+                    date.setDate(date.getDate() + 20)
+                    resolve(requester.get(`/api/masters/getFreeMasters?cityId=1&dateTime=${date.toISOString()}&clockSize=1&limit=50&offset=0`).then((response) => {
+                            expect(response).toStrictEqual(1)
+                            const ourMaster = response.body.filter((master) => master.id === masterId)
+                            expect(ourMaster.length).toStrictEqual(1)
+                        })
+                    )
+                })
+            })
+        })
+    })
 })
 
 
@@ -248,189 +494,8 @@ describe('master controller', () => {
 
 /*
 
-    describe('get one master', () => {
-
-
-
-    })
-
-    describe('update one master', () => {
-        let id
-        let token
-
-        beforeAll(async () => {
-            const master = await Master.create({
-                name: 'longName',
-                email: "some@valid.email",
-                password: "hashPassword",
-                role: ROLE.Master,
-                isActivated: false,
-                isApproved: true,
-                activationLink: "link"
-            });
-            const response = await axios.post(`${process.env.API_URL}/api/auth/login`, {
-                email: process.env.ADMIN_EMAIL,
-                password: process.env.ADMIN_PASSWORD,
-            })
-            token = response.data.token
-            id = master.id
-        });
-        afterAll(async () => {
-            await MasterCity.destroy({where: {masterId: id}})
-            await Master.destroy({where: {id}})
-        })
-
-        test('update master with not valid dates', async () => {
-            try {
-                await axios.put(`${process.env.API_URL}/api/masters/`,
-                    {id, name: "newNameAfterUpdate", email: "notValid@email"},
-                    {headers: {Authorization: `Bearer ${token}`}})
-            } catch (e: any) {
-                expect(e.response.data.errors[0].msg).toStrictEqual("email must be a valid email format")
-                expect(e.response.data.errors[1].msg).toStrictEqual("cityId is required")
-            }
-        })
-        test('update master with valid dates', async () => {
-            const response = await axios.put(`${process.env.API_URL}/api/masters/`,
-                {id, name: "newNameAfterUpdate", email: "new@validemail.com", citiesId: '1'},
-                {headers: {Authorization: `Bearer ${token}`}})
-            expect(response.data.cities[0].id).toStrictEqual(1)
-            expect(response.data.name).toStrictEqual("newNameAfterUpdate")
-            expect(response.data.email).toStrictEqual("new@validemail.com")
-        })
-        test('update master with random id', async () => {
-            function randomInteger(min, max) {
-                let rand = min + Math.random() * (max + 1 - min);
-                return Math.floor(rand);
-            }
-
-            try {
-                const randomId = randomInteger(5000000, 7000000)
-                await axios.put(`${process.env.API_URL}/api/masters/`,
-                    {id: randomId, name: "newNameAfterUpdate", email: "new@validemail.com", citiesId: '1'},
-                    {headers: {Authorization: `Bearer ${token}`}})
-            } catch (e: any) {
-                expect(JSON.parse(e.response.data.message).msg).toStrictEqual("Master with this id is not found")
-            }
-        })
-    })
-
-    describe('delete one master', () => {
-        let id
-        let token
-
-        beforeAll(async () => {
-            const master = await Master.create({
-                name: 'longName',
-                email: "some@valid.email",
-                password: "hashPassword",
-                role: ROLE.Master,
-                isActivated: false,
-                isApproved: true,
-                activationLink: "link"
-            });
-            const response = await axios.post(`${process.env.API_URL}/api/auth/login`, {
-                email: process.env.ADMIN_EMAIL,
-                password: process.env.ADMIN_PASSWORD,
-            })
-            token = response.data.token
-            id = master.id
-        });
-        afterEach(async () => {
-            await MasterCity.destroy({where: {masterId: id}})
-            await Master.destroy({where: {id}})
-        })
-
-        test('delete master', async () => {
-            const response = await axios.delete(`${process.env.API_URL}/api/masters/${id}`,
-                {headers: {Authorization: `Bearer ${token}`}})
-            expect(response.data.message).toStrictEqual(`master with id:${id} was deleted`)
-        })
-        /!*test('delete master with randomId', async () => {
-            try {
-                await axios.delete(`${process.env.API_URL}/api/masters/${555555}`,
-                    {headers: {Authorization: `Bearer ${token}`}})
-            } catch (e: any) {
-                expect(e.response.data.message).toStrictEqual(`master with id:${555555} is not defined`)
-            }
-        })*!/
-
-    })
-
-    describe('approve Master', () => {
-        let id
-        let token
-
-        beforeEach(async () => {
-            const master = await Master.create({
-                name: 'longName',
-                email: "some2@valid.email",
-                password: "hashPassword",
-                role: ROLE.Master,
-                isActivated: false,
-                isApproved: true,
-                activationLink: "link"
-            });
-            const response = await axios.post(`${process.env.API_URL}/api/auth/login`, {
-                email: process.env.ADMIN_EMAIL,
-                password: process.env.ADMIN_PASSWORD,
-            })
-            token = response.data.token
-            id = master.id
-        });
-        afterEach(async () => {
-            await MasterCity.destroy({where: {masterId: id}})
-            await Master.destroy({where: {email: "some2@valid.email"}})
-        })
-        test('Approve master mast be true', async () => {
-            const response = await axios.get(`${process.env.API_URL}/api/masters/getOneMaster/${id}`)
-            expect(response.data.isApproved).toStrictEqual(true)
-        })
-        test('Approve master', async () => {
-            const response = await axios.get(`${process.env.API_URL}/api/masters/approve/${id}`,
-                {headers: {Authorization: `Bearer ${token}`}})
-            expect(response.data.message).toStrictEqual(`master with id:${id} changed status approve`)
-        })
-        test('Approve master with randomId', async () => {
-                function randomInteger(min, max) {
-                    let rand = min + Math.random() * (max + 1 - min);
-                    return Math.floor(rand);
-                }
-
-                const randomId = randomInteger(5000000, 7000000)
-                try {
-                    await axios.get(`${process.env.API_URL}/api/masters/approve/${randomId}`,
-                        {headers: {Authorization: `Bearer ${token}`}})
-                } catch (e: any) {
-                    expect(e.response.data.message).toStrictEqual(`master with id:${randomId} is not defined`)
-                }
-            }
-        )
-    })
 
     describe('get free masters', () => {
-        let id: number
-
-        beforeEach(async () => {
-            const master = await Master.create({
-                name: 'longName',
-                email: "some@valid.email",
-                password: "hashPassword",
-                role: ROLE.Master,
-                isActivated: true,
-                isApproved: true,
-                activationLink: "link"
-            });
-            id = master.id
-            await MasterCity.create({
-                masterId: id,
-                cityId: 1
-            })
-        });
-        afterEach(async () => {
-            await MasterCity.destroy({where: {masterId: id}})
-            await Master.destroy({where: {id}})
-        })
 
         test('master is free', async () => {
             const response = await axios.get(`${process.env.API_URL}/api/masters/getOneMaster/${id}`)
