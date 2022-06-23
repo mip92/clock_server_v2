@@ -421,7 +421,7 @@ describe('master controller', () => {
             }
         )
     })
-    describe('get free masters', () => {
+    /*describe('get free masters', () => {
         let token: string
         let masterId: string
         beforeAll(() => {
@@ -475,7 +475,7 @@ describe('master controller', () => {
                 })
             })
         })
-    })
+    })*/
 })
 
 
