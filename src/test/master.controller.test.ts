@@ -425,6 +425,8 @@ describe('master controller', () => {
     describe('get free masters', () => {
         let token: string
         let masterId: string
+        const date = new Date(Date.now())
+        date.setDate(date.getDate() + 20)
         beforeAll(() => {
             return new Promise((resolve, reject) => {
                 requester.post(`/api/auth/login`)
@@ -432,7 +434,7 @@ describe('master controller', () => {
                     expect(response.body.name).toEqual('admin')
                     expect(response.body.token).not.toBe(null)
                     token = response.body.token
-
+                    resolve(
                         requester.post(`/api/masters`)
                             .set('Authorization', `Bearer ${token}`)
                             .send({
@@ -442,11 +444,9 @@ describe('master controller', () => {
                             }).then((response) => {
                             expect(response.body.email).toBe('example@gmail.com')
                             masterId = response.body.id
-                            resolve(
-                            axios.get(`${process.env.API_URL}/api/auth/activate/${response.body.activationLink}`)
-                            )
+                            requester.get(`/api/auth/activate/${response.body.activationLink}`)
                         })
-
+                    )
                 })
             })
         })
@@ -459,17 +459,200 @@ describe('master controller', () => {
                 )
             })
         })
-        test('master is free', async () => {
+        test('master is free', () => {
             return new Promise((resolve, reject) => {
                 requester.get(`/api/masters/getOneMaster/${masterId}`).then((response) => {
                     expect(response.body.cities[0].id).toStrictEqual(1)
                     expect(response.body.email).toStrictEqual("example@gmail.com")
-                    const date = new Date(Date.now())
-                    date.setDate(date.getDate() + 20)
                     resolve(requester.get(`/api/masters/getFreeMasters?cityId=1&dateTime=${date.toISOString()}&clockSize=1&limit=50&offset=0`).then((response) => {
-                            expect(response).toStrictEqual(1)
-                            const ourMaster = response.body.filter((master) => master.id === masterId)
+                            const ourMaster = response.body.filter((master) => master.id === 106)
                             expect(ourMaster.length).toStrictEqual(1)
+                        })
+                    )
+                })
+            })
+        })
+        test('not valid date', () => {
+            return new Promise((resolve, reject) => {
+                resolve(
+                    requester.get(`/api/masters/getFreeMasters?cityId=1&dateTime=aaaww&clockSize=1&limit=50&offset=0`).then((response) => {
+                        expect(response.body.message).toStrictEqual(`Not valid date format`)
+                    })
+                )
+            })
+        })
+    })
+    describe('registration master', () => {
+        let token: string
+        beforeAll(() => {
+            return new Promise((resolve, reject) => {
+                resolve(
+                    requester.post(`/api/auth/login`)
+                        .send({
+                            email: process.env.ADMIN_EMAIL,
+                            password: process.env.ADMIN_PASSWORD
+                        }).then((response) => {
+                        expect(response.body.name).toEqual('admin')
+                        expect(response.body.token).not.toBe(null)
+                        token = response.body.token
+                    })
+                )
+            })
+        })
+        test('token must be not null', () => {
+
+            return new Promise((resolve, reject) => {
+                requester.post(`/api/auth/registration`)
+                    .set('Authorization', `Bearer ${token}`)
+                    .send({
+                        firstPassword: 123456, secondPassword: 123456, isRulesChecked: true, isMaster: true,
+                        email: "some@valid.email", name: "someValidName", citiesId: [1],
+                    }).then(() => {
+                    requester.get('/api/masters').then((response) => {
+                        const master = response.body.rows.find(master => master.email === "some@valid.email")
+                        expect(master.email).toBe("some@valid.email")
+                        resolve(
+                            requester.delete(`/api/masters/${master.id}`)
+                                .set('Authorization', `Bearer ${token}`).then((response) => {
+                                expect(response.body.message).toStrictEqual(`master with id:${master.id} was deleted`)
+                            })
+                        )
+                    })
+                })
+            })
+        })
+        test('not valid password', () => {
+            return new Promise((resolve, reject) => {
+                resolve(
+                    requester.post(`/api/auth/registration`)
+                        .set('Authorization', `Bearer ${token}`)
+                        .send({
+                            firstPassword: 12, secondPassword: 1, isRulesChecked: true, isMaster: true,
+                            email: "some@valid.email", name: "someValidName", citiesId: [1],
+                        }).then((response) => {
+                        expect(response.body.errors[0].msg).toStrictEqual(`password must be longer than 3 symbols`)
+                    })
+                )
+            })
+        })
+        test('two different passwords', () => {
+            return new Promise((resolve, reject) => {
+                resolve(
+                    requester.post(`/api/auth/registration`)
+                        .set('Authorization', `Bearer ${token}`)
+                        .send({
+                            firstPassword: 123456, secondPassword: 123457, isRulesChecked: true, isMaster: true,
+                            email: "some@valid.email", name: "someValidName", citiesId: [1],
+                        }).then((response) => {
+                        expect(response.body.message).toStrictEqual(`Passwords do not match`)
+                    })
+                )
+            })
+        })
+    })
+    describe('change master email', () => {
+        let token: string
+        let masterId: string
+        beforeAll(() => {
+            return new Promise((resolve, reject) => {
+                requester.post(`/api/auth/login`)
+                    .send({
+                        email: process.env.ADMIN_EMAIL,
+                        password: process.env.ADMIN_PASSWORD
+                    }).then((response) => {
+                    token = response.body.token
+                    requester.post(`/api/auth/registration`)
+                        .send({
+                            firstPassword: 123456,
+                            secondPassword: 123456,
+                            isRulesChecked: true,
+                            isMaster: true,
+                            email: "some@valid.email",
+                            name: "someValidName",
+                            citiesId: [1]
+                        }).then((response) => {
+                        expect(response.body.token).not.toBe(null)
+                        resolve(
+                            requester.get('/api/masters').then((response) => {
+                                const master = response.body.rows.find(master => master.email === "some@valid.email")
+                                expect(master.email).toBe("some@valid.email")
+                                masterId = master.id
+                            })
+                        )
+                    })
+                })
+            })
+        })
+        afterAll(() => {
+            return new Promise((resolve, reject) => {
+                resolve(requester.delete(`/api/masters/${masterId}`)
+                    .set('Authorization', `Bearer ${token}`).then((response) => {
+                        expect(response.body.message).toBe(`master with id:${masterId} was deleted`)
+                    })
+                )
+            })
+        })
+        test('change to valid email', () => {
+            return new Promise((resolve, reject) => {
+                requester.post(`/api/auth/login`)
+                    .send({
+                        email: "some@valid.email",
+                        password: 123456
+                    }).then((response) => {
+                    const masterToken = response.body.token
+                    resolve(
+                        requester.put(`/api/masters/changeEmail`)
+                            .set('Authorization', `Bearer ${masterToken}`)
+                            .send({
+                                password: 123456,
+                                currentEmail: "some@valid.email",
+                                newEmail: "some@valid2.com"
+                            }).then((response) => {
+                            expect(response.body).not.toBe(null)
+                        })
+                    )
+                })
+            })
+        })
+        test('change to not valid email', () => {
+            return new Promise((resolve, reject) => {
+                requester.post(`/api/auth/login`)
+                    .send({
+                        email: "some@valid.email",
+                        password: 123456
+                    }).then((response) => {
+                    const masterToken = response.body.token
+                    resolve(
+                        requester.put(`/api/masters/changeEmail`)
+                            .set('Authorization', `Bearer ${masterToken}`)
+                            .send({
+                                password: 123456,
+                                currentEmail: "some@valid.email",
+                                newEmail: "somevalid.com"
+                            }).then((response) => {
+                            expect(response.body.errors[0].msg).toBe('email must be a valid email format')
+                        })
+                    )
+                })
+            })
+        })
+        test('change random email', () => {
+            return new Promise((resolve, reject) => {
+                requester.post(`/api/auth/login`)
+                    .send({
+                        email: "some@valid.email",
+                        password: 123456
+                    }).then((response) => {
+                    const masterToken = response.body.token
+                    resolve(
+                        requester.put(`/api/masters/changeEmail`)
+                            .set('Authorization', `Bearer ${masterToken}`)
+                            .send({
+                                password: 123456,
+                                currentEmail: "Random@valid.randomEmail",
+                                newEmail: "someRandom@valid.email"
+                            }).then((response) => {
+                            expect(JSON.parse(response.body.message).msg).toBe('Master is not found or password is wrong')
                         })
                     )
                 })
@@ -477,135 +660,7 @@ describe('master controller', () => {
         })
     })
 })
-
-
-/*chai.request(app).post('/api/cities/')
-    .set('Authorization', `Bearer ${res.body.token}`)
-    .send({city: "Dnipro", price: 500})
-    .then(function (res) {
-        expect(JSON.parse(res.body.message).msg).toEqual('City with this name: Dnipro is not unique')
-        chai.request(app).get('/api/cities/')
-            .then(function (res) {
-                expect(res.body.rows.find(city => city.cityName === "Dnipro").price).toBe(500)
-                done();
-            });
-    });*/
-
-
-/*
-
-
-    describe('get free masters', () => {
-
-        test('master is free', async () => {
-            const response = await axios.get(`${process.env.API_URL}/api/masters/getOneMaster/${id}`)
-            expect(response.data.cities[0].id).toStrictEqual(1)
-            expect(response.data.email).toStrictEqual("some@valid.email")
-            const response2 = await axios.get(`${process.env.API_URL}/api/masters/getFreeMasters?cityId=1&dateTime=2022-06-23T05:00:00.000Z&clockSize=1&limit=50&offset=0`)
-            const ourMaster = response2.data.filter((master) => master.id === id)
-            expect(ourMaster.length).toStrictEqual(1)
-        })
-        /!*test('master is busy', async () => {
-            const response0 = await axios.get(`${process.env.API_URL}/api/masters/getOneMaster/${id}`)
-            expect(response0.data.id).toStrictEqual(id)
-            const response = await axios.post(`${process.env.API_URL}/api/order`, {
-                cityId: "1",
-                clockSize: '1',
-                dateTime: "2022-06-23T05:00:00.000Z",
-                email: "user@gmail.com",
-                masterId: id,
-                name: "longUserName"
-            })
-            expect(response.data.masterId).toStrictEqual(id)
-            try {
-                const response2 = await axios.get(`${process.env.API_URL}/api/masters/getFreeMasters?cityId=1&dateTime=2022-06-23T05:00:00.000Z&clockSize=1&limit=50&offset=0`)
-                const ourMaster = response2.data.filter((master) => master.id === id)
-                expect(ourMaster.length).toStrictEqual(0)
-            } catch (e: any) {
-                expect(e.response.data.message).toStrictEqual("masters is not found")
-                Order.destroy({where: {masterId: id}})
-                MasterBusyDate.destroy({where: {masterId: id}})
-            }
-        })*!/
-        test('not valid date', async () => {
-            try {
-                await axios.get(`${process.env.API_URL}/api/masters/getFreeMasters?cityId=1&dateTime=aaaww&clockSize=1&limit=50&offset=0`)
-            } catch (e: any) {
-                expect(e.response.data.message).toStrictEqual(`Not valid date format`)
-            }
-        })
-    })
-
-    describe('registration master', () => {
-        test('token must be not null', async () => {
-            const response = await axios.post(`${process.env.API_URL}/api/auth/registration`, {
-                firstPassword: 123456, secondPassword: 123456, isRulesChecked: true, isMaster: true,
-                email: "some@valid.email", name: "someValidName", citiesId: [1],
-            })
-            expect(response.data.token).not.toBe(null)
-            const master: MasterModel | null = await Master.findOne({where: {email: "some@valid.email"}})
-            master && await MasterCity.destroy({where: {masterId: master.id}})
-            master && await Master.destroy({where: {id: master.id}})
-        })
-        test('not valid password', async () => {
-            try {
-                await axios.post(`${process.env.API_URL}/api/auth/registration`, {
-                    firstPassword: 12, secondPassword: 1, isRulesChecked: true, isMaster: true,
-                    email: "some@valid.email", name: "someValidName", citiesId: [1],
-                })
-            } catch (e: any) {
-                expect(e.response.data.errors[0].msg).toStrictEqual(`password must be longer than 3 symbols`)
-            }
-
-        })
-        test('two different passwords', async () => {
-            try {
-                await axios.post(`${process.env.API_URL}/api/auth/registration`, {
-                    firstPassword: 123456, secondPassword: 123457, isRulesChecked: true, isMaster: true,
-                    email: "some@valid.email", name: "someValidName", citiesId: [1],
-                })
-            } catch (e: any) {
-                expect(e.response.data.message).toStrictEqual(`Passwords do not match`)
-            }
-
-        })
-    })
-
-    describe('change master email', () => {
-        test('change to valid email', async () => {
-            const response = await axios.post(`${process.env.API_URL}/api/auth/registration`, {
-                firstPassword: 123456, secondPassword: 123456, isRulesChecked: true, isMaster: true,
-                email: "some@valid.email", name: "someValidName", citiesId: [1]
-            })
-            expect(response.data.token).not.toBe(null)
-
-            const response2 = await axios.put(`${process.env.API_URL}/api/masters/changeEmail`, {
-                password: 123456, currentEmail: "some@valid.email", newEmail: "some@valid2.com"
-            }, {headers: {Authorization: `Bearer ${response.data.token}`}})
-            expect(response2.data.token).not.toBe(null)
-            const master: MasterModel | null = await Master.findOne({where: {email: "some@valid2.com"}})
-            master && await MasterCity.destroy({where: {masterId: master.id}})
-            master && await Master.destroy({where: {email: "some@valid2.com"}})
-        })
-        test('change to not valid email', async () => {
-            const response = await axios.post(`${process.env.API_URL}/api/auth/registration`, {
-                firstPassword: 123456, secondPassword: 123456, isRulesChecked: true, isMaster: true,
-                email: "some@valid.email", name: "someValidName", citiesId: [1]
-            })
-            expect(response.data.token).not.toBe(null)
-            try {
-                await axios.put(`${process.env.API_URL}/api/masters/changeEmail`, {
-                    password: 123456, currentEmail: "some@valid.email", newEmail: "somevalid.com"
-                }, {headers: {Authorization: `Bearer ${response.data.token}`}})
-            } catch (e: any) {
-                expect(e.response.data.errors[0].msg).toBe('email must be a valid email format')
-                const master: MasterModel | null = await Master.findOne({where: {email: "some@valid.email"}})
-                master && expect(master.email).toBe("some@valid.email")
-                master && await MasterCity.destroy({where: {masterId: master.id}})
-                master && await Master.destroy({where: {id: master.id}})
-            }
-        })
-        test('change random email', async () => {
+            /*}
             const response = await axios.post(`${process.env.API_URL}/api/auth/registration`, {
                 firstPassword: 123456, secondPassword: 123456, isRulesChecked: true, isMaster: true,
                 email: "some@valid.email", name: "someValidName", citiesId: [1]
@@ -622,5 +677,18 @@ describe('master controller', () => {
                 master && await MasterCity.destroy({where: {masterId: master.id}})
                 master && await Master.destroy({where: {id: master.id}})
             }
-        })
-    })*/
+        })*/
+
+
+/*chai.request(app).post('/api/cities/')
+    .set('Authorization', `Bearer ${res.body.token}`)
+    .send({city: "Dnipro", price: 500})
+    .then(function (res) {
+        expect(JSON.parse(res.body.message).msg).toEqual('City with this name: Dnipro is not unique')
+        chai.request(app).get('/api/cities/')
+            .then(function (res) {
+                expect(res.body.rows.find(city => city.cityName === "Dnipro").price).toBe(500)
+                done();
+            });
+    });*/
+

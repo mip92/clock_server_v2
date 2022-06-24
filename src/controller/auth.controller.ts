@@ -78,7 +78,7 @@ class AuthController {
             const master: MasterModel | null = await Master.findOne({where: {activationLink}})
             if (master) {
                 await master.update({isActivated: true})
-                return res.redirect(`${process.env.CLIENT_URL}`);
+                return res.redirect(301,`${process.env.CLIENT_URL}`);
             }
             return next(ApiError.BadRequest('Incorrect activation link'))
         } catch (e) {
