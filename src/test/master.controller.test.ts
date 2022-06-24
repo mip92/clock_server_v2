@@ -1,6 +1,7 @@
 import {ROLE} from "../models";
 import app from "../index";
 import {response} from "express";
+import axios from "axios";
 
 const chai = require('chai')
 const chaiHttp = require('chai-http');
@@ -421,7 +422,7 @@ describe('master controller', () => {
             }
         )
     })
-    /*describe('get free masters', () => {
+    describe('get free masters', () => {
         let token: string
         let masterId: string
         beforeAll(() => {
@@ -440,11 +441,10 @@ describe('master controller', () => {
                                 citiesId: '[1]'
                             }).then((response) => {
                             expect(response.body.email).toBe('example@gmail.com')
-                            expect(response).toBe('example@gmail.com')
                             masterId = response.body.id
-
-                            requester.get(`/api/activate/${response.body.link}`)
-                            resolve('1')
+                            resolve(
+                            axios.get(`${process.env.API_URL}/api/auth/activate/${response.body.activationLink}`)
+                            )
                         })
 
                 })
@@ -475,7 +475,7 @@ describe('master controller', () => {
                 })
             })
         })
-    })*/
+    })
 })
 
 

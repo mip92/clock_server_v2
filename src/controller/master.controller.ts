@@ -75,7 +75,7 @@ class MasterController {
                                     if (count === citiesID.length) {
                                         Master.findOne({
                                             where: {email},
-                                            attributes: {exclude: ['password', 'activationLink']},
+                                            attributes: {exclude: ['password']},
                                             include: [{model: City}]
                                         }).then((master: MasterModel | null) => res.status(201).json(master))
                                     }
