@@ -11,21 +11,21 @@ export const randomInteger = (min, max) => {
     return Math.floor(rand);
 }
 describe('combine', () => {
+    let requester
+
     beforeAll(() => {
         dbConfig.authenticate().then(() => {
-            dbConfig.sync()
+            dbConfig.sync().then(()=>{
+                requester = chai.request(app).keepOpen()
+            })
         })
     })
+
+    afterAll(() => {
+        requester.close()
+    })
+
     describe('master controller', () => {
-
-        let requester
-        beforeAll(() => {
-            requester = chai.request(app).keepOpen()
-        })
-        afterAll(() => {
-            requester.close()
-        })
-
         describe('create master', () => {
             test('generate token', () => {
                 return requester.post('/api/auth/login')
@@ -684,15 +684,6 @@ describe('combine', () => {
         })
     })
     describe('order controller', () => {
-
-        let requester
-        beforeAll(() => {
-            requester = chai.request(app).keepOpen()
-        })
-        afterAll(() => {
-            requester.close()
-        })
-
         describe('create order', () => {
             let token: string
             let masterId: string
