@@ -1,7 +1,5 @@
-import {ROLE} from "../models";
+import {dbConfig, Master, ROLE} from "../models";
 import app from "../index";
-import {response} from "express";
-import axios from "axios";
 
 const chai = require('chai')
 const chaiHttp = require('chai-http');
@@ -75,7 +73,7 @@ describe('master controller', () => {
                             email: "example@gmail.com",
                             citiesId: '[1]'
                         }).then((response) => {
-                        expect(response.body.email).toBe('example@gmail.com')
+                        expect(response.body.email).toEqual('example@gmail.com')
                         masterId = response.body.id
                         resolve(requester.delete(`/api/masters/${masterId}`)
                             .set('Authorization', `Bearer ${token}`).then((response) => {
@@ -429,24 +427,34 @@ describe('master controller', () => {
         date.setDate(date.getDate() + 20)
         beforeAll(() => {
             return new Promise((resolve, reject) => {
-                requester.post(`/api/auth/login`)
-                    .send({email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD}).then((response) => {
-                    expect(response.body.name).toEqual('admin')
-                    expect(response.body.token).not.toBe(null)
-                    token = response.body.token
-                    resolve(
-                        requester.post(`/api/masters`)
-                            .set('Authorization', `Bearer ${token}`)
+                dbConfig.authenticate().then(() => {
+                    dbConfig.sync().then(() => {
+                        requester.post(`/api/auth/login`)
                             .send({
-                                name: "NormalLongName",
-                                email: "example@gmail.com",
-                                citiesId: '[1]'
+                                email: process.env.ADMIN_EMAIL,
+                                password: process.env.ADMIN_PASSWORD
                             }).then((response) => {
-                            expect(response.body.email).toBe('example@gmail.com')
-                            masterId = response.body.id
-                            requester.get(`/api/auth/activate/${response.body.activationLink}`)
+                            expect(response.body.name).toEqual('admin')
+                            expect(response.body.token).not.toBe(null)
+                            token = response.body.token
+                            resolve(
+                                requester.post(`/api/masters`)
+                                    .set('Authorization', `Bearer ${token}`)
+                                    .send({
+                                        name: "NormalLongName",
+                                        email: "example@gmail.com",
+                                        citiesId: '[1]'
+                                    }).then((response) => {
+                                    expect(response.body.email).toBe('example@gmail.com')
+                                    masterId = response.body.id
+
+                                    Master.findOne({where: {id: masterId}}).then((master) => {
+                                        master?.update({isActivated: true})
+                                    })
+                                })
+                            )
                         })
-                    )
+                    })
                 })
             })
         })
@@ -465,7 +473,7 @@ describe('master controller', () => {
                     expect(response.body.cities[0].id).toStrictEqual(1)
                     expect(response.body.email).toStrictEqual("example@gmail.com")
                     resolve(requester.get(`/api/masters/getFreeMasters?cityId=1&dateTime=${date.toISOString()}&clockSize=1&limit=50&offset=0`).then((response) => {
-                            const ourMaster = response.body.filter((master) => master.id === 106)
+                            const ourMaster = response.body.filter((master) => master.id === masterId)
                             expect(ourMaster.length).toStrictEqual(1)
                         })
                     )
@@ -553,7 +561,7 @@ describe('master controller', () => {
     describe('change master email', () => {
         let token: string
         let masterId: string
-        beforeAll(() => {
+        beforeEach(() => {
             return new Promise((resolve, reject) => {
                 requester.post(`/api/auth/login`)
                     .send({
@@ -583,7 +591,7 @@ describe('master controller', () => {
                 })
             })
         })
-        afterAll(() => {
+        afterEach(() => {
             return new Promise((resolve, reject) => {
                 resolve(requester.delete(`/api/masters/${masterId}`)
                     .set('Authorization', `Bearer ${token}`).then((response) => {
@@ -660,24 +668,24 @@ describe('master controller', () => {
         })
     })
 })
-            /*}
-            const response = await axios.post(`${process.env.API_URL}/api/auth/registration`, {
-                firstPassword: 123456, secondPassword: 123456, isRulesChecked: true, isMaster: true,
-                email: "some@valid.email", name: "someValidName", citiesId: [1]
-            })
-            expect(response.data.token).not.toBe(null)
-            try {
-                await axios.put(`${process.env.API_URL}/api/masters/changeEmail`, {
-                    password: 123456, currentEmail: "Random@valid.randomEmail", newEmail: "someRandom@valid.email"
-                }, {headers: {Authorization: `Bearer ${response.data.token}`}})
-            } catch (e: any) {
-                expect(JSON.parse(e.response.data.message).msg).toBe('Master is not found or password is wrong')
-                const master: MasterModel | null = await Master.findOne({where: {email: "some@valid.email"}})
-                master && expect(master.email).toBe("some@valid.email")
-                master && await MasterCity.destroy({where: {masterId: master.id}})
-                master && await Master.destroy({where: {id: master.id}})
-            }
-        })*/
+/*}
+const response = await axios.post(`${process.env.API_URL}/api/auth/registration`, {
+    firstPassword: 123456, secondPassword: 123456, isRulesChecked: true, isMaster: true,
+    email: "some@valid.email", name: "someValidName", citiesId: [1]
+})
+expect(response.data.token).not.toBe(null)
+try {
+    await axios.put(`${process.env.API_URL}/api/masters/changeEmail`, {
+        password: 123456, currentEmail: "Random@valid.randomEmail", newEmail: "someRandom@valid.email"
+    }, {headers: {Authorization: `Bearer ${response.data.token}`}})
+} catch (e: any) {
+    expect(JSON.parse(e.response.data.message).msg).toBe('Master is not found or password is wrong')
+    const master: MasterModel | null = await Master.findOne({where: {email: "some@valid.email"}})
+    master && expect(master.email).toBe("some@valid.email")
+    master && await MasterCity.destroy({where: {masterId: master.id}})
+    master && await Master.destroy({where: {id: master.id}})
+}
+})*/
 
 
 /*chai.request(app).post('/api/cities/')

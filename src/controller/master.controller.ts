@@ -204,9 +204,9 @@ class MasterController {
     async deleteMaster(req: CustomRequest<null, MasterId, null, null>, res: Response, next: NextFunction) {
         try {
             const {masterId} = req.params
-            if (!masterId) next(ApiError.BadRequest("id is not defined"))
+            if (!masterId) return next(ApiError.BadRequest("id is not defined"))
             const candidate = await Master.findOne({where: {id: masterId}})
-            if (!candidate) next(ApiError.BadRequest(`master with id:${masterId} is not defined`))
+            if (!candidate) return next(ApiError.BadRequest(`master with id:${masterId} is not defined`))
             MasterCity.destroy({where: {masterId}}).then(() => {
                 Master.destroy({where: {id: masterId}}).then(() => {
                     res.status(200).json({message: `master with id:${masterId} was deleted`, master: candidate})
