@@ -1,12 +1,12 @@
 import {dbConfig, Master, ROLE} from "../models";
 import app from "../index";
 
-const chai = require('chai')
-const chaiHttp = require('chai-http');
+import chai from 'chai';
+import chaiHttp from 'chai-http';
 
 chai.use(chaiHttp);
 
-const randomInteger = (min, max) => {
+export const randomInteger = (min, max) => {
     let rand = min + Math.random() * (max + 1 - min);
     return Math.floor(rand);
 }
@@ -329,15 +329,6 @@ describe('master controller', () => {
                 })
             })
         })
-/*        afterAll(() => {
-            return new Promise((resolve, reject) => {
-                resolve(requester.delete(`/api/masters/${masterId}`)
-                    .set('Authorization', `Bearer ${token}`).then((response) => {
-                        expect(response.body.message).toBe(`master with id:${masterId} was deleted`)
-                    })
-                )
-            })
-        })*/
         test('delete master', () => {
             return new Promise((resolve, reject) => {
                 resolve(requester.delete(`/api/masters/${masterId}`)
