@@ -1,8 +1,7 @@
-import chai from 'chai';
+/*import chai from 'chai';
 import chaiHttp from 'chai-http';
 import app from "../index";
-import {dbConfig, Master, MasterBusyDate, Order, STATUSES, User} from "../models";
-import {randomInteger} from "./master.controller.test";
+import {dbConfig, Master, Order, STATUSES, User} from "../models";
 
 chai.use(chaiHttp);
 
@@ -116,7 +115,7 @@ describe('master controller', () => {
             })
         })
     })
-})
+})*/
 /*test('create order with not valid data', () => {
     return new Promise((resolve, reject) => {
         requester.get(`/api/masters/getOneMaster/${masterId}`).then((response) => {
