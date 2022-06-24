@@ -70,10 +70,10 @@ describe('master controller', () => {
                         .set('Authorization', `Bearer ${token}`)
                         .send({
                             name: "NormalLongName",
-                            email: "example@gmail.com",
+                            email: "example3@gmail.com",
                             citiesId: '[1]'
                         }).then((response) => {
-                        expect(response.body.email).toEqual('example@gmail.com')
+                        expect(response.body.email).toEqual('example3@gmail.com')
                         masterId = response.body.id
                         resolve(requester.delete(`/api/masters/${masterId}`)
                             .set('Authorization', `Bearer ${token}`).then((response) => {
@@ -329,7 +329,7 @@ describe('master controller', () => {
                 })
             })
         })
-        afterAll(() => {
+/*        afterAll(() => {
             return new Promise((resolve, reject) => {
                 resolve(requester.delete(`/api/masters/${masterId}`)
                     .set('Authorization', `Bearer ${token}`).then((response) => {
@@ -337,7 +337,7 @@ describe('master controller', () => {
                     })
                 )
             })
-        })
+        })*/
         test('delete master', () => {
             return new Promise((resolve, reject) => {
                 resolve(requester.delete(`/api/masters/${masterId}`)

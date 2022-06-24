@@ -1,4 +1,4 @@
-import axios from "axios";
+/*import axios from "axios";
 import {dbConfig, Master, MasterBusyDate, MasterCity, Order, ROLE, STATUSES, User} from "../models";
 
 describe('create order', () => {
@@ -94,5 +94,5 @@ describe('create order', () => {
             MasterBusyDate.destroy({where: {masterId: id}})
         }
     })
-})
+})*/
 
