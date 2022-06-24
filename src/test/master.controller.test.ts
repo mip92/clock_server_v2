@@ -14,10 +14,9 @@ describe('combine', () => {
     let requester
 
     beforeAll(() => {
+        requester = chai.request(app).keepOpen()
         dbConfig.authenticate().then(() => {
-            dbConfig.sync().then(()=>{
-                requester = chai.request(app).keepOpen()
-            })
+            dbConfig.sync()
         })
     })
 
