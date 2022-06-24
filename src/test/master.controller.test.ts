@@ -32,7 +32,7 @@ describe('combine', () => {
                     .send({email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD}).then((res) => {
                         expect(res.body.token).not.toEqual(null)
                     })
-            })
+            },10000)
             test('create master with short name', () => {
                 return new Promise((resolve, reject) => {
                     requester.post(`/api/auth/login`)
@@ -50,7 +50,7 @@ describe('combine', () => {
                         )
                     })
                 })
-            })
+            },10000)
             test('create master with not valid email', () => {
                 return new Promise((resolve, reject) => {
                     requester.post(`/api/auth/login`)
@@ -67,7 +67,7 @@ describe('combine', () => {
                         )
                     })
                 })
-            })
+            },10000)
             test('create and remove master', () => {
                 return new Promise((resolve, reject) => {
                     let token: string
@@ -97,7 +97,7 @@ describe('combine', () => {
                         })
                     })
                 })
-            })
+            },10000)
             test('create master with duplicate email', () => {
                 return new Promise((resolve, reject) => {
                     let token: string
@@ -136,7 +136,7 @@ describe('combine', () => {
                         })
                     })
                 })
-            })
+            },10000)
         })
         describe('get masters', () => {
             test('masters count must be 2', () => {
@@ -152,7 +152,7 @@ describe('combine', () => {
                         })
                     )
                 })
-            })
+            },10000)
             test('master length must be less than 50', () => {
                 return new Promise((resolve, reject) => {
                     const limit = '2';
@@ -166,8 +166,8 @@ describe('combine', () => {
                         })
                     )
                 })
-            })
-            test('find masters with city id not equal 1', async () => {
+            },10000)
+            test('find masters with city id not equal 1', () => {
                 return new Promise((resolve, reject) => {
                     const limit = '';
                     const offset = '';
@@ -188,7 +188,7 @@ describe('combine', () => {
                         })
                     )
                 })
-            })
+            },10000)
         })
         describe('get one master', () => {
             let token: string
@@ -237,7 +237,7 @@ describe('combine', () => {
                         })
                     )
                 })
-            })
+            },10000)
             test('masters values mast be not valid', () => {
                 const id = randomInteger(5000000, 7000000)
                 return new Promise((resolve, reject) => {
@@ -246,7 +246,7 @@ describe('combine', () => {
                         })
                     )
                 })
-            })
+            },10000)
         })
         describe('update one master', () => {
             let token: string
@@ -294,8 +294,8 @@ describe('combine', () => {
                         })
                     )
                 })
-            })
-            test('update master with valid dates', async () => {
+            },10000)
+            test('update master with valid dates', () => {
                 return new Promise((resolve, reject) => {
                     resolve(requester.put(`/api/masters/`)
                         .set('Authorization', `Bearer ${token}`)
@@ -311,8 +311,8 @@ describe('combine', () => {
                         })
                     )
                 })
-            })
-            test('update master with random id', async () => {
+            },10000)
+            test('update master with random id', () => {
                 return new Promise((resolve, reject) => {
                     resolve(requester.put(`/api/masters/`)
                         .set('Authorization', `Bearer ${token}`)
@@ -326,7 +326,7 @@ describe('combine', () => {
                         })
                     )
                 })
-            })
+            },10000)
         })
         describe('delete one master', () => {
             let token: string
@@ -363,7 +363,7 @@ describe('combine', () => {
                         })
                     )
                 })
-            })
+            },10000)
             test('delete master with randomId', () => {
                 const randomId = randomInteger(5000000, 7000000)
                 return new Promise((resolve, reject) => {
@@ -373,7 +373,7 @@ describe('combine', () => {
                         })
                     )
                 })
-            })
+            },10000)
         })
         describe('approve Master', () => {
             let token: string
@@ -418,7 +418,7 @@ describe('combine', () => {
                         })
                     )
                 })
-            })
+            },10000)
             test('Approve master', () => {
                 return new Promise((resolve, reject) => {
                     resolve(requester.get(`/api/masters/approve/${masterId}`)
@@ -427,7 +427,7 @@ describe('combine', () => {
                         })
                     )
                 })
-            })
+            },10000)
             test('Approve master with randomId', () => {
                     const randomId = randomInteger(5000000, 7000000)
                     return new Promise((resolve, reject) => {
@@ -437,8 +437,7 @@ describe('combine', () => {
                             })
                         )
                     })
-                }
-            )
+                },10000)
         })
         describe('get free masters', () => {
             let token: string
@@ -495,7 +494,7 @@ describe('combine', () => {
                         )
                     })
                 })
-            })
+            },10000)
             test('not valid date', () => {
                 return new Promise((resolve, reject) => {
                     resolve(
@@ -504,7 +503,7 @@ describe('combine', () => {
                         })
                     )
                 })
-            })
+            },10000)
         })
         describe('registration master', () => {
             let token: string
@@ -544,7 +543,7 @@ describe('combine', () => {
                         })
                     })
                 })
-            })
+            },10000)
             test('not valid password', () => {
                 return new Promise((resolve, reject) => {
                     resolve(
@@ -558,7 +557,7 @@ describe('combine', () => {
                         })
                     )
                 })
-            })
+            },10000)
             test('two different passwords', () => {
                 return new Promise((resolve, reject) => {
                     resolve(
@@ -572,7 +571,7 @@ describe('combine', () => {
                         })
                     )
                 })
-            })
+            },10000)
         })
         describe('change master email', () => {
             let token: string
@@ -637,7 +636,7 @@ describe('combine', () => {
                         )
                     })
                 })
-            })
+            },10000)
             test('change to not valid email', () => {
                 return new Promise((resolve, reject) => {
                     requester.post(`/api/auth/login`)
@@ -659,7 +658,7 @@ describe('combine', () => {
                         )
                     })
                 })
-            })
+            },10000)
             test('change random email', () => {
                 return new Promise((resolve, reject) => {
                     requester.post(`/api/auth/login`)
@@ -681,7 +680,7 @@ describe('combine', () => {
                         )
                     })
                 })
-            })
+            },10000)
         })
     })
     describe('order controller', () => {
@@ -764,7 +763,7 @@ describe('combine', () => {
                         })
                     })
                 })
-            })
+            },10000)
             test('master is busy', () => {
                 return new Promise((resolve, reject) => {
                     requester.get(`/api/masters/getOneMaster/${masterId}`).then((response) => {
@@ -788,7 +787,7 @@ describe('combine', () => {
                         })
                     })
                 })
-            })
+            },10000)
         })
     })
 })
