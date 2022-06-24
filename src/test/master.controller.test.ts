@@ -10,7 +10,12 @@ export const randomInteger = (min, max) => {
     let rand = min + Math.random() * (max + 1 - min);
     return Math.floor(rand);
 }
-describe('combine',()=>{
+describe('combine', () => {
+    beforeAll(() => {
+        dbConfig.authenticate().then(() => {
+            dbConfig.sync()
+        })
+    })
     describe('master controller', () => {
 
         let requester
@@ -31,7 +36,10 @@ describe('combine',()=>{
             test('create master with short name', () => {
                 return new Promise((resolve, reject) => {
                     requester.post(`/api/auth/login`)
-                        .send({email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD}).then((response) => {
+                        .send({
+                            email: process.env.ADMIN_EMAIL,
+                            password: process.env.ADMIN_PASSWORD
+                        }).then((response) => {
                         expect(response.body.name).toEqual('admin')
                         expect(response.body.token).not.toBe(null)
                         resolve(requester.post(`/api/masters`)
@@ -46,7 +54,10 @@ describe('combine',()=>{
             test('create master with not valid email', () => {
                 return new Promise((resolve, reject) => {
                     requester.post(`/api/auth/login`)
-                        .send({email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD}).then((response) => {
+                        .send({
+                            email: process.env.ADMIN_EMAIL,
+                            password: process.env.ADMIN_PASSWORD
+                        }).then((response) => {
                         expect(response.body.name).toEqual('admin')
                         expect(response.body.token).not.toBe(null)
                         resolve(requester.post(`/api/masters`).set('Authorization', `Bearer ${response.body.token}`)
@@ -62,7 +73,10 @@ describe('combine',()=>{
                     let token: string
                     let masterId: string
                     requester.post(`/api/auth/login`)
-                        .send({email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD}).then((response) => {
+                        .send({
+                            email: process.env.ADMIN_EMAIL,
+                            password: process.env.ADMIN_PASSWORD
+                        }).then((response) => {
                         expect(response.body.name).toEqual('admin')
                         expect(response.body.token).not.toBe(null)
                         token = response.body.token
@@ -89,7 +103,10 @@ describe('combine',()=>{
                     let token: string
                     let masterId: string
                     requester.post(`/api/auth/login`)
-                        .send({email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD}).then((response) => {
+                        .send({
+                            email: process.env.ADMIN_EMAIL,
+                            password: process.env.ADMIN_PASSWORD
+                        }).then((response) => {
                         expect(response.body.name).toEqual('admin')
                         expect(response.body.token).not.toBe(null)
                         token = response.body.token
@@ -179,7 +196,10 @@ describe('combine',()=>{
             beforeAll(() => {
                 return new Promise((resolve, reject) => {
                     requester.post(`/api/auth/login`)
-                        .send({email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD}).then((response) => {
+                        .send({
+                            email: process.env.ADMIN_EMAIL,
+                            password: process.env.ADMIN_PASSWORD
+                        }).then((response) => {
                         expect(response.body.name).toEqual('admin')
                         expect(response.body.token).not.toBe(null)
                         token = response.body.token
@@ -234,7 +254,10 @@ describe('combine',()=>{
             beforeAll(() => {
                 return new Promise((resolve, reject) => {
                     requester.post(`/api/auth/login`)
-                        .send({email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD}).then((response) => {
+                        .send({
+                            email: process.env.ADMIN_EMAIL,
+                            password: process.env.ADMIN_PASSWORD
+                        }).then((response) => {
                         expect(response.body.name).toEqual('admin')
                         expect(response.body.token).not.toBe(null)
                         token = response.body.token
@@ -311,7 +334,10 @@ describe('combine',()=>{
             beforeAll(() => {
                 return new Promise((resolve, reject) => {
                     requester.post(`/api/auth/login`)
-                        .send({email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD}).then((response) => {
+                        .send({
+                            email: process.env.ADMIN_EMAIL,
+                            password: process.env.ADMIN_PASSWORD
+                        }).then((response) => {
                         expect(response.body.name).toEqual('admin')
                         expect(response.body.token).not.toBe(null)
                         token = response.body.token
@@ -355,7 +381,10 @@ describe('combine',()=>{
             beforeAll(() => {
                 return new Promise((resolve, reject) => {
                     requester.post(`/api/auth/login`)
-                        .send({email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD}).then((response) => {
+                        .send({
+                            email: process.env.ADMIN_EMAIL,
+                            password: process.env.ADMIN_PASSWORD
+                        }).then((response) => {
                         expect(response.body.name).toEqual('admin')
                         expect(response.body.token).not.toBe(null)
                         token = response.body.token
@@ -418,34 +447,30 @@ describe('combine',()=>{
             date.setDate(date.getDate() + 20)
             beforeAll(() => {
                 return new Promise((resolve, reject) => {
-                    dbConfig.authenticate().then(() => {
-                        dbConfig.sync().then(() => {
-                            requester.post(`/api/auth/login`)
+                    requester.post(`/api/auth/login`)
+                        .send({
+                            email: process.env.ADMIN_EMAIL,
+                            password: process.env.ADMIN_PASSWORD
+                        }).then((response) => {
+                        expect(response.body.name).toEqual('admin')
+                        expect(response.body.token).not.toBe(null)
+                        token = response.body.token
+                        resolve(
+                            requester.post(`/api/masters`)
+                                .set('Authorization', `Bearer ${token}`)
                                 .send({
-                                    email: process.env.ADMIN_EMAIL,
-                                    password: process.env.ADMIN_PASSWORD
+                                    name: "NormalLongName",
+                                    email: "example@gmail.com",
+                                    citiesId: '[1]'
                                 }).then((response) => {
-                                expect(response.body.name).toEqual('admin')
-                                expect(response.body.token).not.toBe(null)
-                                token = response.body.token
-                                resolve(
-                                    requester.post(`/api/masters`)
-                                        .set('Authorization', `Bearer ${token}`)
-                                        .send({
-                                            name: "NormalLongName",
-                                            email: "example@gmail.com",
-                                            citiesId: '[1]'
-                                        }).then((response) => {
-                                        expect(response.body.email).toBe('example@gmail.com')
-                                        masterId = response.body.id
+                                expect(response.body.email).toBe('example@gmail.com')
+                                masterId = response.body.id
 
-                                        Master.findOne({where: {id: masterId}}).then((master) => {
-                                            master?.update({isActivated: true})
-                                        })
-                                    })
-                                )
+                                Master.findOne({where: {id: masterId}}).then((master) => {
+                                    master?.update({isActivated: true})
+                                })
                             })
-                        })
+                        )
                     })
                 })
             })
@@ -676,33 +701,29 @@ describe('combine',()=>{
             date.setDate(date.getDate() + 20)
             beforeAll(() => {
                 return new Promise((resolve, reject) => {
-                    dbConfig.authenticate().then(() => {
-                        dbConfig.sync().then(() => {
-                            requester.post(`/api/auth/login`)
+                    requester.post(`/api/auth/login`)
+                        .send({
+                            email: process.env.ADMIN_EMAIL,
+                            password: process.env.ADMIN_PASSWORD
+                        }).then((response) => {
+                        expect(response.body.name).toEqual('admin')
+                        expect(response.body.token).not.toBe(null)
+                        token = response.body.token
+                        resolve(
+                            requester.post(`/api/masters`)
+                                .set('Authorization', `Bearer ${token}`)
                                 .send({
-                                    email: process.env.ADMIN_EMAIL,
-                                    password: process.env.ADMIN_PASSWORD
+                                    name: "NormalLongName",
+                                    email: "example@gmail.com",
+                                    citiesId: '[1]'
                                 }).then((response) => {
-                                expect(response.body.name).toEqual('admin')
-                                expect(response.body.token).not.toBe(null)
-                                token = response.body.token
-                                resolve(
-                                    requester.post(`/api/masters`)
-                                        .set('Authorization', `Bearer ${token}`)
-                                        .send({
-                                            name: "NormalLongName",
-                                            email: "example@gmail.com",
-                                            citiesId: '[1]'
-                                        }).then((response) => {
-                                        expect(response.body.email).toBe('example@gmail.com')
-                                        masterId = response.body.id
-                                        Master.findOne({where: {id: masterId}}).then((master) => {
-                                            master?.update({isActivated: true})
-                                        })
-                                    })
-                                )
+                                expect(response.body.email).toBe('example@gmail.com')
+                                masterId = response.body.id
+                                Master.findOne({where: {id: masterId}}).then((master) => {
+                                    master?.update({isActivated: true})
+                                })
                             })
-                        })
+                        )
                     })
                 })
             })
