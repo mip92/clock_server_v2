@@ -1,7 +1,6 @@
 import {NextFunction, Response} from "express";
 import {CreatePicturesParams, CustomRequest, DeletePicturesBody} from "../interfaces/RequestInterfaces";
 import {OrderModel} from "../models/order.model";
-import ErrnoException = NodeJS.ErrnoException;
 import {PictureModel} from "../models/picture.model";
 import {OrderPictureModel} from "../models/orderPicture.model";
 import {v4 as uuidv4} from 'uuid';
@@ -71,7 +70,7 @@ class PictureController {
     }
 
     static deleteOnePicture(path: string, next: NextFunction) {
-        fs.unlink(path, (err: ErrnoException | null) => {
+        fs.unlink(path, (err: any) => {
             if (err) return next(err)
             //console.log('File deleted successfully');
         });

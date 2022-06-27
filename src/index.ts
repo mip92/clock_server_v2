@@ -24,16 +24,21 @@ app.use(fileupload())
 app.use('/api', router)
 app.use(express.static(path.join(__dirname, 'static')))
 app.use(errorMiddleware)
-app.use(()=>everyFiveMinutes)
-app.use(()=>everyHour)
+/*app.use(()=>everyFiveMinutes)
+app.use(()=>everyHour)*/
 
-const start = async () => {
+const start = () => {
     try {
-        await dbConfig.authenticate()
-        await dbConfig.sync()
-        app.listen(PORT, () => console.log("Server started on port: " + PORT))
+        dbConfig.authenticate().then(()=>{
+            dbConfig.sync().then(()=>{
+                app.listen(PORT, () => console.log("Server started on port: " + PORT))
+            })
+        })
     } catch (e) {
         console.log(e)
     }
 }
-start()
+
+//start()
+
+export default app

@@ -12,7 +12,7 @@ import {MasterModel} from "../models/master.model";
 import {CityModel} from "../models/city.model";
 import {MasterBusyDateModel} from "../models/masterBusyDate.model";
 import Sequelize, {Attributes, FindAndCountOptions} from "sequelize";
-import {Master, MasterCity, City, MasterBusyDate, ROLE, dbConfig, User} from '../models';
+import {Master, MasterCity, City, MasterBusyDate, ROLE, dbConfig, User, OrderPicture, Order} from '../models';
 import {v4 as uuidv4} from 'uuid';
 import bcrypt from 'bcrypt';
 import mail from "../services/mailServiсe";
@@ -21,6 +21,7 @@ import tokenService from '../services/tokenServiсe';
 import {MasterCityModel} from "../models/masterCity.model";
 import {Op} from 'sequelize';
 import {UserModel} from "../models/user.model";
+import {OrderModel} from "../models/order.model";
 
 class MasterController {
 
@@ -75,7 +76,7 @@ class MasterController {
                                     if (count === citiesID.length) {
                                         Master.findOne({
                                             where: {email},
-                                            attributes: {exclude: ['password', 'activationLink']},
+                                            attributes: {exclude: ['password']},
                                             include: [{model: City}]
                                         }).then((master: MasterModel | null) => res.status(201).json(master))
                                     }
@@ -203,14 +204,30 @@ class MasterController {
 
     async deleteMaster(req: CustomRequest<null, MasterId, null, null>, res: Response, next: NextFunction) {
         try {
+            const removeOrder = (order: OrderModel) => {
+                return new Promise((resolve, reject) => {
+                    OrderPicture.destroy({where: {orderId: order.id}}).then(() => {
+                        Order.destroy({where: {id: order.id}}).then((bolean) => {
+                            resolve(bolean)
+                        })
+                    })
+                })
+            }
             const {masterId} = req.params
             if (!masterId) next(ApiError.BadRequest("id is not defined"))
-            const candidate = await Master.findOne({where: {id: masterId}})
+            const candidate: MasterModel | null = await Master.findOne({where: {id: masterId}, include: [{all: true}]})
             if (!candidate) next(ApiError.BadRequest(`master with id:${masterId} is not defined`))
-            MasterCity.destroy({where: {masterId}}).then(() => {
-                Master.destroy({where: {id: masterId}}).then(() => {
-                    res.status(200).json({message: `master with id:${masterId} was deleted`, master: candidate})
-                })
+            else Order.findAll({where: {masterId}}).then((orders) => {
+                Promise.all(orders.map(order => removeOrder(order))).then(()=>
+                    {
+                        MasterBusyDate.destroy({where:{masterId}}).then(()=>{
+                            MasterCity.destroy({where:{masterId}}).then(()=>{
+                                candidate.destroy({force: true})
+                                res.status(200).json({message: `master with id:${masterId} was deleted`, master: candidate})
+                            })
+                        })
+                    }
+                )
             })
         } catch (e: any) {
             next(ApiError.BadRequest(e))

@@ -18,17 +18,23 @@ const options = {
     dialect: 'postgres',
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
-    dialectOptions: {}
+    dialectOptions: {
+        ssl: {
+            require: true,
+            rejectUnauthorized: false
+        }
+    },
 }
 
-if (process.env.NODE_ENV === 'production') {
+
+/*if (process.env.NODE_ENV === 'production') {
     options.dialectOptions = {
         ssl: {
             require: true,
             rejectUnauthorized: false
         }
     }
-}
+}*/
 
 export const dbConfig = new Sequelize(options);
 

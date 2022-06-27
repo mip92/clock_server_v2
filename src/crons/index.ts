@@ -12,6 +12,7 @@ export const everyHour = cron.schedule('0 * * * *', async () => { //0 * * * *
     now.setSeconds(0)
     now.setMilliseconds(0)
     const hour = now.getHours()
+
     now.setHours(hour + 1)
     const orders: OrderModelWithMasterBusyDateMasterAndUser[] = await cronService.findMasters(now.toISOString())
     const sendMail = (order: OrderModelWithMasterBusyDateMasterAndUser): Promise<string> => {

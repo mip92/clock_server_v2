@@ -6,7 +6,6 @@ import axios from "axios";
 import {OrderPictureWithPicture} from "./order.controller";
 import {promisify} from "util";
 import * as stream from "stream";
-import ErrnoException = NodeJS.ErrnoException;
 
 class ZipController {
     async createZip(orderPictures: OrderPictureWithPicture[]): Promise<{ fileName: string, filePath: string, imgPaths: string[] }> {
@@ -94,11 +93,11 @@ class ZipController {
     deleteZip(path: string, imgPaths: string[]) {
         console.log(path, imgPaths)
         try {
-            fs.unlink(path, (err: ErrnoException | null) => {
+            fs.unlink(path, (err: any) => {
                 console.log(err)
             });
             imgPaths.map((path) => {
-                fs.unlink(path, (err: ErrnoException | null) => {
+                fs.unlink(path, (err: any) => {
                     console.log(err)
                 });
             })
