@@ -1,17 +1,27 @@
 import {dbConfig, Master, Order, ROLE, STATUSES, User} from "../models";
 import app from "../index";
+const nodemailer = require("nodemailer")
 
 import chai from 'chai';
 import chaiHttp from 'chai-http';
-
 chai.use(chaiHttp);
+
+const sendMailMock = jest.fn();
+jest.mock("nodemailer");
+
+nodemailer.createTransport.mockReturnValue({sendMail: sendMailMock});
 
 export const randomInteger = (min, max) => {
     let rand = min + Math.random() * (max + 1 - min);
     return Math.floor(rand);
 }
+beforeEach( () => {
+    sendMailMock.mockClear();
+    nodemailer.createTransport.mockClear();
+});
 describe('combine', () => {
     let requester
+
 
     beforeAll(() => {
         requester = chai.request(app).keepOpen()
@@ -86,6 +96,7 @@ describe('combine', () => {
                                 email: "example3@gmail.com",
                                 citiesId: '[1]'
                             }).then((response) => {
+                            expect(sendMailMock).toBeCalledTimes(1);
                             expect(response.body.email).toEqual('example3@gmail.com')
                             masterId = response.body.id
                             resolve(requester.delete(`/api/masters/${masterId}`)
